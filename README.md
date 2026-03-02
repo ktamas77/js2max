@@ -182,6 +182,10 @@ npm run lint         # eslint
 npm run format       # prettier --write
 ```
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## License
 
 MIT

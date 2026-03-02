@@ -21,6 +21,7 @@ export class PatchBuilder {
   private lines: PatchLine[] = [];
   private deviceWidth = 0;
   private description = "";
+  private openInPresentation = 0;
   private nextRow = 0;
   private nextCol = 0;
 
@@ -38,6 +39,11 @@ export class PatchBuilder {
     return this;
   }
 
+  setOpenInPresentation(value: boolean): this {
+    this.openInPresentation = value ? 1 : 0;
+    return this;
+  }
+
   addBox(
     maxclass: string,
     options: {
@@ -48,11 +54,11 @@ export class PatchBuilder {
       varname?: string;
       embed?: number;
       saved_object_attributes?: Record<string, unknown>;
-      text_editor_contents?: string;
       x?: number;
       y?: number;
       width?: number;
       height?: number;
+      patching_rect?: [number, number, number, number];
       comment?: string;
       patcher?: Patcher;
       [key: string]: unknown;
@@ -67,18 +73,22 @@ export class PatchBuilder {
       varname,
       embed,
       saved_object_attributes,
-      text_editor_contents,
       x,
       y,
       width = DEFAULT_BOX_WIDTH,
       height = DEFAULT_BOX_HEIGHT,
+      patching_rect,
       comment,
       patcher,
       ...extra
     } = options;
 
-    const posX = x ?? START_X + this.nextCol * GRID_X;
-    const posY = y ?? START_Y + this.nextRow * GRID_Y;
+    const rect: [number, number, number, number] = patching_rect ?? [
+      x ?? START_X + this.nextCol * GRID_X,
+      y ?? START_Y + this.nextRow * GRID_Y,
+      width,
+      height,
+    ];
     this.nextRow++;
 
     const box: Box["box"] = {
@@ -86,12 +96,7 @@ export class PatchBuilder {
       maxclass,
       numinlets,
       numoutlets,
-      patching_rect: [posX, posY, width, height] as [
-        number,
-        number,
-        number,
-        number,
-      ],
+      patching_rect: rect,
     };
 
     if (text !== undefined) box.text = text;
@@ -100,7 +105,6 @@ export class PatchBuilder {
     if (embed !== undefined) box.embed = embed;
     if (saved_object_attributes)
       box.saved_object_attributes = saved_object_attributes;
-    if (text_editor_contents) box.text_editor_contents = text_editor_contents;
     if (comment) box.comment = comment;
     if (patcher) box.patcher = patcher;
 
@@ -154,7 +158,7 @@ export class PatchBuilder {
       classnamespace: "box",
       rect: [100, 100, 800, 600],
       bglocked: 0,
-      openinpresentation: 0,
+      openinpresentation: this.openInPresentation,
       default_fontsize: 12.0,
       default_fontface: 0,
       default_fontname: "Arial",

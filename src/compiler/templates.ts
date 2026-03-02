@@ -68,12 +68,70 @@ function addV8Box(
   });
 }
 
+function getDeviceLabel(filePath: string): string {
+  const name = filePath.split("/").pop() ?? "js2max device";
+  return name.replace(/\.js$/, "");
+}
+
+function addPresentationUI(
+  builder: PatchBuilder,
+  metadata: ParsedMetadata,
+  deviceType: DeviceType,
+  deviceWidth: number
+): void {
+  const label = getDeviceLabel(metadata.filePath);
+  const typeLabel =
+    deviceType === "midi-effect"
+      ? "MIDI Effect"
+      : deviceType === "audio-effect"
+        ? "Audio Effect"
+        : "Instrument";
+
+  // Device title
+  builder.addBox("comment", {
+    text: label,
+    numinlets: 1,
+    numoutlets: 0,
+    patching_rect: [10, 300, deviceWidth - 20, 20],
+    presentation: 1,
+    presentation_rect: [10, 8, deviceWidth - 20, 20],
+    fontsize: 14,
+    fontface: 1, // bold
+  });
+
+  // Device type subtitle
+  builder.addBox("comment", {
+    text: typeLabel,
+    numinlets: 1,
+    numoutlets: 0,
+    patching_rect: [10, 325, deviceWidth - 20, 18],
+    presentation: 1,
+    presentation_rect: [10, 30, deviceWidth - 20, 18],
+    fontsize: 10,
+    textcolor: [0.5, 0.5, 0.5, 1.0],
+  });
+
+  // "js2max" credit
+  builder.addBox("comment", {
+    text: "js2max",
+    numinlets: 1,
+    numoutlets: 0,
+    patching_rect: [10, 350, 60, 16],
+    presentation: 1,
+    presentation_rect: [deviceWidth - 55, 30, 50, 16],
+    fontsize: 9,
+    textcolor: [0.4, 0.4, 0.4, 1.0],
+  });
+}
+
 function buildMidiEffect(
   metadata: ParsedMetadata,
   options: TemplateOptions
 ): MaxPat {
   const builder = new PatchBuilder();
-  builder.setDeviceWidth(options.deviceWidth || DEFAULT_DEVICE_WIDTH);
+  const width = options.deviceWidth || DEFAULT_DEVICE_WIDTH;
+  builder.setDeviceWidth(width);
+  builder.setOpenInPresentation(true);
 
   // live.thisdevice — triggers loadbang
   const thisDevice = builder.addObject("live.thisdevice", {
@@ -102,10 +160,13 @@ function buildMidiEffect(
     y: 220,
   });
 
+  // Presentation UI
+  addPresentationUI(builder, metadata, "midi-effect", width);
+
   // Wiring
-  builder.connect(thisDevice, 0, v8, 0); // thisdevice -> v8 inlet 0
-  builder.connect(midiin, 0, v8, metadata.inlets > 1 ? 1 : 0); // midiin -> v8
-  builder.connect(v8, 0, midiout, 0); // v8 outlet 0 -> midiout
+  builder.connect(thisDevice, 0, v8, 0);
+  builder.connect(midiin, 0, v8, metadata.inlets > 1 ? 1 : 0);
+  builder.connect(v8, 0, midiout, 0);
 
   return builder.build();
 }
@@ -115,7 +176,9 @@ function buildAudioEffect(
   options: TemplateOptions
 ): MaxPat {
   const builder = new PatchBuilder();
-  builder.setDeviceWidth(options.deviceWidth || DEFAULT_DEVICE_WIDTH);
+  const width = options.deviceWidth || DEFAULT_DEVICE_WIDTH;
+  builder.setDeviceWidth(width);
+  builder.setOpenInPresentation(true);
 
   // live.thisdevice
   const thisDevice = builder.addObject("live.thisdevice", {
@@ -144,10 +207,13 @@ function buildAudioEffect(
     y: 220,
   });
 
+  // Presentation UI
+  addPresentationUI(builder, metadata, "audio-effect", width);
+
   // Audio passthrough (v8 can't process audio, so pass through directly)
   builder.connect(thisDevice, 0, v8, 0);
-  builder.connect(pluginIn, 0, pluginOut, 0); // L channel passthrough
-  builder.connect(pluginIn, 1, pluginOut, 1); // R channel passthrough
+  builder.connect(pluginIn, 0, pluginOut, 0);
+  builder.connect(pluginIn, 1, pluginOut, 1);
 
   return builder.build();
 }
@@ -157,7 +223,9 @@ function buildInstrument(
   options: TemplateOptions
 ): MaxPat {
   const builder = new PatchBuilder();
-  builder.setDeviceWidth(options.deviceWidth || DEFAULT_DEVICE_WIDTH);
+  const width = options.deviceWidth || DEFAULT_DEVICE_WIDTH;
+  builder.setDeviceWidth(width);
+  builder.setOpenInPresentation(true);
 
   // live.thisdevice
   const thisDevice = builder.addObject("live.thisdevice", {
@@ -185,6 +253,9 @@ function buildInstrument(
     x: 150,
     y: 220,
   });
+
+  // Presentation UI
+  addPresentationUI(builder, metadata, "instrument", width);
 
   // Wiring
   builder.connect(thisDevice, 0, v8, 0);

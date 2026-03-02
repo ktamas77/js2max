@@ -8,7 +8,7 @@ import type { DeviceType } from "./maxpat/types.js";
 const program = new Command();
 
 program
-  .name("max4js")
+  .name("js2max")
   .description("Compile JavaScript files into Max for Live (.amxd) devices")
   .version("0.1.0");
 

@@ -1,11 +1,11 @@
 {
-  "name": "max4js",
+  "name": "js2max",
   "version": "0.1.0",
   "description": "Compile JavaScript files into Max for Live (.amxd) devices",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "max4js": "dist/index.js"
+    "js2max": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",

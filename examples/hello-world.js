@@ -6,7 +6,7 @@ inlets = 1;
 outlets = 1;
 
 function bang() {
-  post("Hello from max4js!\n");
+  post("Hello from js2max!\n");
   outlet(0, "hello", "world");
 }
 

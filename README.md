@@ -1,8 +1,8 @@
-# max4js
+# js2max
 
 Write Max for Live devices in JavaScript. Compile to `.amxd` and drag into Ableton Live.
 
-**max4js** is a Node.js compiler that takes a JavaScript file written for the Max 9 `v8` engine and produces a ready-to-use `.amxd` device. No visual patching required.
+**js2max** is a Node.js compiler that takes a JavaScript file written for the Max 9 `v8` engine and produces a ready-to-use `.amxd` device. No visual patching required.
 
 ## Why?
 
@@ -15,12 +15,12 @@ The Max/MSP visual editor is great for experimentation but painful for serious d
 
 Max 9 introduced the [`v8` object](https://docs.cycling74.com/reference/v8/) — a modern V8 JavaScript engine with full ES6+ support and access to the [Live Object Model](https://docs.cycling74.com/userguide/m4l/live_api_overview/). Your logic is pure JavaScript; you just need a minimal patch to wire it up.
 
-**max4js generates that patch for you.**
+**js2max generates that patch for you.**
 
 ## Quick Start
 
 ```bash
-npx max4js compile my-effect.js
+npx js2max compile my-effect.js
 ```
 
 This produces `my-effect.amxd` — drag it directly into Ableton Live.
@@ -28,13 +28,13 @@ This produces `my-effect.amxd` — drag it directly into Ableton Live.
 ## Installation
 
 ```bash
-npm install -g max4js
+npm install -g js2max
 ```
 
 Or use directly with `npx`:
 
 ```bash
-npx max4js compile <input.js> [options]
+npx js2max compile <input.js> [options]
 ```
 
 ## Usage
@@ -66,16 +66,16 @@ function bang() {
 
 ```bash
 # MIDI effect (default) → .amxd
-max4js compile effect.js
+js2max compile effect.js
 
 # Audio effect
-max4js compile delay.js --type audio-effect
+js2max compile delay.js --type audio-effect
 
 # Instrument
-max4js compile synth.js --type instrument
+js2max compile synth.js --type instrument
 
 # Output as .maxpat instead
-max4js compile effect.js -o effect.maxpat
+js2max compile effect.js -o effect.maxpat
 ```
 
 ### CLI Options
@@ -160,8 +160,8 @@ Full reference: [Max JavaScript User Guide](https://docs.cycling74.com/userguide
 ## Development
 
 ```bash
-git clone https://github.com/ktamas77/max4js.git
-cd max4js
+git clone https://github.com/ktamas77/js2max.git
+cd js2max
 npm install
 npm run build
 npm test

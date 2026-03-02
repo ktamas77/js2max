@@ -104,6 +104,52 @@ Use comments at the top of your file to configure compilation:
 // @outlet 0 "Processed MIDI"  — help text for outlet 0
 ```
 
+### `@ui` — Device Strip UI Elements
+
+Add interactive controls to your device's presentation view with `@ui` decorators. The compiler generates Max UI objects, wires them to your v8 inlets/outlets, and auto-layouts them in the device strip.
+
+```javascript
+// @ui live.text "Fire" trigger inlet=0        — button (sends bang on click)
+// @ui live.dial "Delay" inlet=1 min=0 max=1000 — rotary dial
+// @ui live.slider "Volume" inlet=2 min=0 max=127 — vertical slider
+// @ui live.toggle "Active" outlet=0           — LED toggle (driven by code)
+```
+
+**Format:** `// @ui <maxclass> "<label>" [trigger] inlet=N|outlet=N [min=X] [max=Y]`
+
+| Parameter   | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| `inlet=N`   | Wires UI output to v8 inlet N (user controls the code)          |
+| `outlet=N`  | Wires v8 outlet N to UI input (code controls the display)       |
+| `trigger`   | For `live.text` — button mode (bang on click) instead of toggle |
+| `min`/`max` | Value range for dials and sliders                               |
+
+**Example — MIDI echo with UI:**
+
+```javascript
+// @device midi-effect
+// @ui live.dial "Delay" inlet=0 min=0 max=1000
+// @ui live.dial "Feedback" inlet=2 min=0 max=100
+// @ui live.toggle "Activity" outlet=1
+
+inlets = 3;
+outlets = 2;
+
+function msg_int(value) {
+  if (inlet === 0) {
+    delayTime = value;
+    return;
+  }
+  if (inlet === 2) {
+    feedback = value / 100;
+    return;
+  }
+  outlet(0, value);
+}
+```
+
+Elements are arranged in a row below the title and wrap automatically when they exceed the device width.
+
 ## How It Works
 
 1. **Parses** your `.js` file to extract `inlets`, `outlets`, handler functions, and decorator comments
@@ -116,9 +162,9 @@ Use comments at the top of your file to configure compilation:
 
 See the [`examples/`](examples/) directory:
 
-- **[hello-world.js](examples/hello-world.js)** — Simplest possible device
-- **[midi-echo.js](examples/midi-echo.js)** — MIDI delay/echo effect with feedback
-- **[clip-launcher.js](examples/clip-launcher.js)** — Live Object Model: fire clips, stop tracks
+- **[hello-world.js](examples/hello-world.js)** — Simplest possible device with a "Say Hello" button
+- **[midi-echo.js](examples/midi-echo.js)** — MIDI delay/echo with Delay/Feedback dials and Activity toggle
+- **[clip-launcher.js](examples/clip-launcher.js)** — Live Object Model with Track/Slot dials and Fire/Stop buttons
 
 ## Max 9 v8 API Quick Reference
 

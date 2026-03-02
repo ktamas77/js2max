@@ -77,12 +77,12 @@ max4js compile synth.js --type instrument -o synth.maxpat
 
 ### CLI Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-o, --output <path>` | `<input>.maxpat` | Output file path |
-| `-t, --type <type>` | `midi-effect` | Device type: `midi-effect`, `audio-effect`, `instrument` |
-| `--no-embed` | (embeds by default) | Reference external `.js` file instead of embedding code |
-| `-w, --device-width <px>` | `400` | Max for Live device strip width |
+| Option                    | Default             | Description                                              |
+| ------------------------- | ------------------- | -------------------------------------------------------- |
+| `-o, --output <path>`     | `<input>.maxpat`    | Output file path                                         |
+| `-t, --type <type>`       | `midi-effect`       | Device type: `midi-effect`, `audio-effect`, `instrument` |
+| `--no-embed`              | (embeds by default) | Reference external `.js` file instead of embedding code  |
+| `-w, --device-width <px>` | `400`               | Max for Live device strip width                          |
 
 ## Decorator Comments
 
@@ -120,28 +120,28 @@ The `v8` object gives you access to these globals:
 // Inlets and outlets (must be in global scope)
 inlets = 2;
 outlets = 3;
-inlet              // read-only: which inlet triggered the current function
+inlet; // read-only: which inlet triggered the current function
 
 // Output
-outlet(n, ...args)           // send message out outlet n
-outlet_array(n, arr)         // send JS array (v8 only)
-outlet_dictionary(n, dict)   // send dictionary (v8 only)
+outlet(n, ...args); // send message out outlet n
+outlet_array(n, arr); // send JS array (v8 only)
+outlet_dictionary(n, dict); // send dictionary (v8 only)
 
 // Message handlers (define as global functions)
 function bang() {}
 function msg_int(n) {}
 function msg_float(f) {}
 function list(...args) {}
-function anything(msg, ...args) {}  // catch-all
+function anything(msg, ...args) {} // catch-all
 
 // Live Object Model
 var api = new LiveAPI(callback, "live_set tracks 0");
-api.get("name")
-api.set("mute", 1)
-api.call("fire")
+api.get("name");
+api.set("mute", 1);
+api.call("fire");
 
 // Utilities
-post("debug message\n")     // print to Max console
+post("debug message\n"); // print to Max console
 ```
 
 Full reference: [Max JavaScript User Guide](https://docs.cycling74.com/userguide/javascript/) | [v8 Reference](https://docs.cycling74.com/reference/v8/) | [Live API](https://docs.cycling74.com/userguide/m4l/live_api_overview/)
@@ -159,6 +159,20 @@ cd max4js
 npm install
 npm run build
 npm test
+```
+
+### Code Quality
+
+Pre-commit hooks (via [husky](https://typicode.github.io/husky/)) automatically run on every commit:
+
+- **TypeScript typecheck** (`tsc --noEmit`)
+- **Prettier** formatting
+- **ESLint** linting
+
+```bash
+npm run typecheck    # type check
+npm run lint         # eslint
+npm run format       # prettier --write
 ```
 
 ## License

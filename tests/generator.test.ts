@@ -17,10 +17,12 @@ describe("compileSource", () => {
     const source = `inlets = 1;\noutlets = 1;\nfunction bang() {}`;
     const patch = await compileSource(source);
 
-    const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text === "v8");
     expect(v8Box).toBeDefined();
-    expect(v8Box!.box.embed).toBe(1);
-    expect(v8Box!.box.text_editor_contents).toBe(source);
+    const tf = v8Box!.box.textfile as Record<string, unknown>;
+    expect(tf).toBeDefined();
+    expect(tf.embed).toBe(1);
+    expect(tf.text).toBe(source);
   });
 
   it("references external file when embed is false", async () => {
@@ -29,7 +31,8 @@ describe("compileSource", () => {
 
     const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
     expect(v8Box).toBeDefined();
-    expect(v8Box!.box.embed).toBeUndefined();
+    const tf = v8Box!.box.textfile as Record<string, unknown>;
+    expect(tf.embed).toBe(0);
     expect(v8Box!.box.text).toBe("v8 <inline>");
   });
 
@@ -72,7 +75,7 @@ describe("compileSource", () => {
     const source = `inlets = 3;\noutlets = 4;\nfunction bang() {}`;
     const patch = await compileSource(source);
 
-    const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text === "v8");
     expect(v8Box!.box.numinlets).toBe(3);
     expect(v8Box!.box.numoutlets).toBe(4);
   });

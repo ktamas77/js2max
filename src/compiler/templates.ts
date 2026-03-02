@@ -32,16 +32,21 @@ function addV8Box(
 ): string {
   if (options.embed) {
     return builder.addBox("newobj", {
-      text: `v8 ${metadata.outlets} ${metadata.inlets}`,
+      text: "v8",
+      filename: "none",
       numinlets: metadata.inlets,
       numoutlets: metadata.outlets,
       outlettype: Array(metadata.outlets).fill(""),
-      embed: 1,
       saved_object_attributes: {
-        embed: 1,
-        jsarguments: [],
+        parameter_enable: 0,
       },
-      text_editor_contents: metadata.source,
+      textfile: {
+        text: metadata.source,
+        filename: "none",
+        flags: 0,
+        embed: 1,
+        autowatch: 1,
+      },
       ...boxOptions,
     });
   }
@@ -53,6 +58,12 @@ function addV8Box(
     numinlets: metadata.inlets,
     numoutlets: metadata.outlets,
     outlettype: Array(metadata.outlets).fill(""),
+    textfile: {
+      filename,
+      flags: 0,
+      embed: 0,
+      autowatch: 1,
+    },
     ...boxOptions,
   });
 }

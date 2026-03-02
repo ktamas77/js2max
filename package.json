@@ -28,14 +28,19 @@
     ]
   },
   "keywords": [
+    "ableton",
+    "live",
+    "max4live",
+    "m4l",
+    "javascript",
+    "compiler",
+    "music",
     "max",
     "msp",
-    "max-for-live",
-    "ableton",
     "cycling74",
     "maxpat",
-    "v8",
-    "compiler"
+    "amxd",
+    "v8"
   ],
   "author": "Tamas Kalman",
   "license": "MIT",

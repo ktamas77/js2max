@@ -1,6 +1,7 @@
 // @device midi-effect
 // @inlet 0 "Bang to trigger"
 // @outlet 0 "Hello message"
+// @ui live.text "Say Hello" trigger inlet=0
 
 inlets = 1;
 outlets = 1;

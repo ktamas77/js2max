@@ -47,6 +47,56 @@ outlets = 1;
     expect(result.outletAssist.get(0)).toBe("Processed MIDI");
   });
 
+  it("extracts @ui decorators", () => {
+    const source = `
+// @ui live.text "Fire" trigger inlet=0
+// @ui live.dial "Track" inlet=1 min=0 max=16
+// @ui live.slider "Delay" inlet=2 min=0 max=1000
+// @ui live.toggle "Active" outlet=0
+inlets = 3;
+outlets = 1;
+`;
+    const result = parseSource(source);
+    expect(result.uiElements).toHaveLength(4);
+
+    expect(result.uiElements[0]).toEqual({
+      maxclass: "live.text",
+      label: "Fire",
+      trigger: true,
+      inlet: 0,
+    });
+
+    expect(result.uiElements[1]).toEqual({
+      maxclass: "live.dial",
+      label: "Track",
+      trigger: false,
+      inlet: 1,
+      min: 0,
+      max: 16,
+    });
+
+    expect(result.uiElements[2]).toEqual({
+      maxclass: "live.slider",
+      label: "Delay",
+      trigger: false,
+      inlet: 2,
+      min: 0,
+      max: 1000,
+    });
+
+    expect(result.uiElements[3]).toEqual({
+      maxclass: "live.toggle",
+      label: "Active",
+      trigger: false,
+      outlet: 0,
+    });
+  });
+
+  it("returns empty uiElements when no @ui decorators", () => {
+    const result = parseSource("function bang() {}");
+    expect(result.uiElements).toEqual([]);
+  });
+
   it("preserves the original source", () => {
     const source = `inlets = 1;\nfunction bang() { outlet(0, "hi"); }`;
     const result = parseSource(source);

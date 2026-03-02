@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0] - 2026-03-02
+
+### Added
+
+- **`@ui` decorator** — Generate interactive UI elements (buttons, dials, sliders, toggles) in the device strip directly from comment decorators in your JS code.
+  - `// @ui live.text "Label" [trigger] inlet=N` — Button or toggle
+  - `// @ui live.dial "Label" inlet=N min=X max=Y` — Rotary dial
+  - `// @ui live.slider "Label" inlet=N min=X max=Y` — Vertical slider
+  - `// @ui live.toggle "Label" outlet=N` — LED-style toggle indicator
+- **Auto-layout** — UI elements are arranged in a row below the title, wrapping to the next row when exceeding device width.
+- **Bidirectional wiring** — `inlet=N` wires UI output to v8 inlet (user controls); `outlet=N` wires v8 outlet to UI input (status display).
+
+### Changed
+
+- **clip-launcher.js** — Now has Track/Slot dials and Fire/Stop buttons (5 inlets) with `msg_int` inlet routing.
+- **midi-echo.js** — Now has Delay/Feedback dials and Activity toggle (3 inlets, 2 outlets) with visual MIDI activity feedback.
+- **hello-world.js** — Now has a "Say Hello" button wired to bang.
+
 ## [1.0.0] - 2026-03-02
 
 ### Added

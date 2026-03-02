@@ -1,6 +1,6 @@
 import { PatchBuilder } from "../maxpat/builder.js";
 import type { MaxPat, DeviceType } from "../maxpat/types.js";
-import type { ParsedMetadata } from "./parser.js";
+import type { ParsedMetadata, UIElement } from "./parser.js";
 
 export interface TemplateOptions {
   embed: boolean;
@@ -124,6 +124,161 @@ function addPresentationUI(
   });
 }
 
+interface UISlot {
+  width: number;
+  height: number;
+  labelHeight: number;
+}
+
+const UI_SLOTS: Record<UIElement["maxclass"], UISlot> = {
+  "live.text": { width: 80, height: 30, labelHeight: 0 },
+  "live.dial": { width: 60, height: 50, labelHeight: 15 },
+  "live.slider": { width: 30, height: 80, labelHeight: 15 },
+  "live.toggle": { width: 30, height: 30, labelHeight: 15 },
+};
+
+const UI_START_Y = 55;
+const UI_PADDING = 10;
+
+function addUIElements(
+  builder: PatchBuilder,
+  metadata: ParsedMetadata,
+  v8Id: string,
+  deviceWidth: number
+): void {
+  if (metadata.uiElements.length === 0) return;
+
+  let curX = UI_PADDING;
+  let curY = UI_START_Y;
+  let rowHeight = 0;
+
+  for (const el of metadata.uiElements) {
+    const slot = UI_SLOTS[el.maxclass];
+
+    // Wrap to next row if exceeding device width
+    if (curX + slot.width + UI_PADDING > deviceWidth) {
+      curX = UI_PADDING;
+      curY += rowHeight + slot.labelHeight + UI_PADDING;
+      rowHeight = 0;
+    }
+
+    const totalHeight = slot.height + slot.labelHeight;
+    if (totalHeight > rowHeight) rowHeight = totalHeight;
+
+    const presRect: [number, number, number, number] = [
+      curX,
+      curY,
+      slot.width,
+      slot.height,
+    ];
+
+    // Patching rect (hidden behind presentation, placed below visible area)
+    const patchY = 400 + curY;
+
+    const boxOptions: Record<string, unknown> = {
+      numinlets: 1,
+      numoutlets: 1,
+      outlettype: [""],
+      patching_rect: [curX, patchY, slot.width, slot.height],
+      presentation: 1,
+      presentation_rect: presRect,
+    };
+
+    if (el.maxclass === "live.text") {
+      boxOptions.text = el.label;
+      boxOptions.saved_object_attributes = {
+        parameter_enable: 1,
+        parameter_longname: el.label,
+        parameter_shortname: el.label,
+        parameter_type: el.trigger ? 0 : 2, // 0=float(bang), 2=int(toggle)
+      };
+      if (el.trigger) {
+        boxOptions.mode = 0; // button mode (bang on click)
+        boxOptions.texton = el.label;
+        boxOptions.textoff = el.label;
+      }
+    } else if (el.maxclass === "live.dial") {
+      boxOptions.saved_object_attributes = {
+        parameter_enable: 1,
+        parameter_longname: el.label,
+        parameter_shortname: el.label,
+        parameter_type: 0,
+        parameter_unitstyle: 0,
+      };
+      if (el.min !== undefined)
+        (boxOptions.saved_object_attributes as Record<string, unknown>)[
+          "parameter_mmin"
+        ] = el.min;
+      if (el.max !== undefined)
+        (boxOptions.saved_object_attributes as Record<string, unknown>)[
+          "parameter_mmax"
+        ] = el.max;
+    } else if (el.maxclass === "live.slider") {
+      boxOptions.saved_object_attributes = {
+        parameter_enable: 1,
+        parameter_longname: el.label,
+        parameter_shortname: el.label,
+        parameter_type: 0,
+        parameter_unitstyle: 0,
+      };
+      if (el.min !== undefined)
+        (boxOptions.saved_object_attributes as Record<string, unknown>)[
+          "parameter_mmin"
+        ] = el.min;
+      if (el.max !== undefined)
+        (boxOptions.saved_object_attributes as Record<string, unknown>)[
+          "parameter_mmax"
+        ] = el.max;
+    } else if (el.maxclass === "live.toggle") {
+      boxOptions.saved_object_attributes = {
+        parameter_enable: 1,
+        parameter_longname: el.label,
+        parameter_shortname: el.label,
+        parameter_type: 2,
+      };
+    }
+
+    const uiId = builder.addBox(el.maxclass, boxOptions);
+
+    // Wire: UI output → v8 inlet (user controls)
+    if (el.inlet !== undefined) {
+      builder.connect(uiId, 0, v8Id, el.inlet);
+    }
+
+    // Wire: v8 outlet → UI input (status display)
+    if (el.outlet !== undefined) {
+      builder.connect(v8Id, el.outlet, uiId, 0);
+    }
+
+    // Add label below for dials, sliders, toggles
+    if (el.maxclass !== "live.text" && slot.labelHeight > 0) {
+      builder.addBox("comment", {
+        text: el.label,
+        numinlets: 1,
+        numoutlets: 0,
+        patching_rect: [
+          curX,
+          patchY + slot.height + 2,
+          slot.width,
+          slot.labelHeight,
+        ],
+        presentation: 1,
+        presentation_rect: [
+          curX,
+          curY + slot.height + 2,
+          slot.width,
+          slot.labelHeight,
+        ],
+        fontsize: 9,
+        textjustification: 1,
+        textcolor: [0.5, 0.5, 0.5, 1.0],
+      });
+    }
+
+    curX += slot.width + UI_PADDING;
+  }
+}
+
 function buildMidiEffect(
   metadata: ParsedMetadata,
   options: TemplateOptions
@@ -162,6 +317,7 @@ function buildMidiEffect(
 
   // Presentation UI
   addPresentationUI(builder, metadata, "midi-effect", width);
+  addUIElements(builder, metadata, v8, width);
 
   // Wiring
   builder.connect(thisDevice, 0, v8, 0);
@@ -209,6 +365,7 @@ function buildAudioEffect(
 
   // Presentation UI
   addPresentationUI(builder, metadata, "audio-effect", width);
+  addUIElements(builder, metadata, v8, width);
 
   // Audio passthrough (v8 can't process audio, so pass through directly)
   builder.connect(thisDevice, 0, v8, 0);
@@ -256,6 +413,7 @@ function buildInstrument(
 
   // Presentation UI
   addPresentationUI(builder, metadata, "instrument", width);
+  addUIElements(builder, metadata, v8, width);
 
   // Wiring
   builder.connect(thisDevice, 0, v8, 0);

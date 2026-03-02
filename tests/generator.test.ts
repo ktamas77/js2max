@@ -71,6 +71,71 @@ describe("compileSource", () => {
     expect(plugout).toBeDefined();
   });
 
+  it("generates UI elements from @ui decorators", async () => {
+    const source = `// @device midi-effect
+// @ui live.dial "Track" inlet=1 min=0 max=16
+// @ui live.text "Fire" trigger inlet=0
+inlets = 2;
+outlets = 1;
+function bang() {}`;
+    const patch = await compileSource(source);
+
+    const dialBox = patch.patcher.boxes.find(
+      (b) => b.box.maxclass === "live.dial"
+    );
+    expect(dialBox).toBeDefined();
+    expect(dialBox!.box.presentation).toBe(1);
+    const dialAttrs = dialBox!.box.saved_object_attributes as Record<
+      string,
+      unknown
+    >;
+    expect(dialAttrs.parameter_shortname).toBe("Track");
+    expect(dialAttrs.parameter_mmin).toBe(0);
+    expect(dialAttrs.parameter_mmax).toBe(16);
+
+    const textBox = patch.patcher.boxes.find(
+      (b) => b.box.maxclass === "live.text"
+    );
+    expect(textBox).toBeDefined();
+    expect(textBox!.box.mode).toBe(0); // trigger/button mode
+  });
+
+  it("wires UI elements to v8 inlets and outlets", async () => {
+    const source = `// @device midi-effect
+// @ui live.dial "Vol" inlet=1 min=0 max=127
+// @ui live.toggle "LED" outlet=1
+inlets = 2;
+outlets = 2;
+function bang() {}`;
+    const patch = await compileSource(source);
+
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text === "v8");
+    const dialBox = patch.patcher.boxes.find(
+      (b) => b.box.maxclass === "live.dial"
+    );
+    const toggleBox = patch.patcher.boxes.find(
+      (b) => b.box.maxclass === "live.toggle"
+    );
+
+    // dial → v8 inlet 1
+    const dialToV8 = patch.patcher.lines.find(
+      (l) =>
+        l.patchline.source[0] === dialBox!.box.id &&
+        l.patchline.destination[0] === v8Box!.box.id &&
+        l.patchline.destination[1] === 1
+    );
+    expect(dialToV8).toBeDefined();
+
+    // v8 outlet 1 → toggle
+    const v8ToToggle = patch.patcher.lines.find(
+      (l) =>
+        l.patchline.source[0] === v8Box!.box.id &&
+        l.patchline.source[1] === 1 &&
+        l.patchline.destination[0] === toggleBox!.box.id
+    );
+    expect(v8ToToggle).toBeDefined();
+  });
+
   it("handles multiple inlets/outlets", async () => {
     const source = `inlets = 3;\noutlets = 4;\nfunction bang() {}`;
     const patch = await compileSource(source);

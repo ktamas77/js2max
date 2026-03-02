@@ -2,6 +2,16 @@ import * as acorn from "acorn";
 import { readFile } from "node:fs/promises";
 import type { DeviceType } from "../maxpat/types.js";
 
+export interface UIElement {
+  maxclass: "live.text" | "live.dial" | "live.slider" | "live.toggle";
+  label: string;
+  trigger: boolean;
+  inlet?: number;
+  outlet?: number;
+  min?: number;
+  max?: number;
+}
+
 export interface ParsedMetadata {
   inlets: number;
   outlets: number;
@@ -9,6 +19,7 @@ export interface ParsedMetadata {
   deviceType: DeviceType | null;
   inletAssist: Map<number, string>;
   outletAssist: Map<number, string>;
+  uiElements: UIElement[];
   source: string;
   filePath: string;
 }
@@ -29,6 +40,7 @@ export function parseSource(
     deviceType: null,
     inletAssist: new Map(),
     outletAssist: new Map(),
+    uiElements: [],
     source,
     filePath,
   };
@@ -62,6 +74,30 @@ function parseDecorators(source: string, metadata: ParsedMetadata): void {
     const outletMatch = trimmed.match(/^\/\/\s*@outlet\s+(\d+)\s+"([^"]+)"/);
     if (outletMatch) {
       metadata.outletAssist.set(parseInt(outletMatch[1]), outletMatch[2]);
+    }
+
+    // @ui live.text "Label" [trigger] inlet=N|outlet=N [min=X] [max=Y]
+    const uiMatch = trimmed.match(
+      /^\/\/\s*@ui\s+(live\.text|live\.dial|live\.slider|live\.toggle)\s+"([^"]+)"\s*(.*)/
+    );
+    if (uiMatch) {
+      const maxclass = uiMatch[1] as UIElement["maxclass"];
+      const label = uiMatch[2];
+      const rest = uiMatch[3];
+
+      const trigger = /\btrigger\b/.test(rest);
+      const inletMatch2 = rest.match(/\binlet=(\d+)/);
+      const outletMatch2 = rest.match(/\boutlet=(\d+)/);
+      const minMatch = rest.match(/\bmin=(-?\d+)/);
+      const maxMatch = rest.match(/\bmax=(-?\d+)/);
+
+      const el: UIElement = { maxclass, label, trigger };
+      if (inletMatch2) el.inlet = parseInt(inletMatch2[1]);
+      if (outletMatch2) el.outlet = parseInt(outletMatch2[1]);
+      if (minMatch) el.min = parseInt(minMatch[1]);
+      if (maxMatch) el.max = parseInt(maxMatch[1]);
+
+      metadata.uiElements.push(el);
     }
   }
 }

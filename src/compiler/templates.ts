@@ -168,7 +168,7 @@ function buildInstrument(
   const v8 = addV8Box(builder, metadata, options, { x: 150, y: 120 });
 
   // plugout~ — stereo audio output (instruments produce audio)
-  const pluginOut = builder.addObject("plugout~", {
+  builder.addObject("plugout~", {
     numinlets: 2,
     numoutlets: 0,
     x: 150,
@@ -178,9 +178,6 @@ function buildInstrument(
   // Wiring
   builder.connect(thisDevice, 0, v8, 0);
   builder.connect(midiin, 0, v8, metadata.inlets > 1 ? 1 : 0);
-  // Note: v8 can't directly produce audio signals.
-  // Instrument templates will need additional objects (e.g., poly~)
-  // for actual sound generation. The v8 object handles MIDI/control logic.
 
   return builder.build();
 }

@@ -13,24 +13,15 @@ export interface ParsedMetadata {
   filePath: string;
 }
 
-const KNOWN_HANDLERS = [
-  "bang",
-  "msg_int",
-  "msg_float",
-  "list",
-  "msg_array",
-  "msg_dictionary",
-  "msg_string",
-  "anything",
-  "loadbang",
-];
-
 export async function parseJsFile(filePath: string): Promise<ParsedMetadata> {
   const source = await readFile(filePath, "utf-8");
   return parseSource(source, filePath);
 }
 
-export function parseSource(source: string, filePath = "<inline>"): ParsedMetadata {
+export function parseSource(
+  source: string,
+  filePath = "<inline>"
+): ParsedMetadata {
   const metadata: ParsedMetadata = {
     inlets: 1,
     outlets: 1,
@@ -62,17 +53,13 @@ function parseDecorators(source: string, metadata: ParsedMetadata): void {
     }
 
     // @inlet 0 "Description"
-    const inletMatch = trimmed.match(
-      /^\/\/\s*@inlet\s+(\d+)\s+"([^"]+)"/
-    );
+    const inletMatch = trimmed.match(/^\/\/\s*@inlet\s+(\d+)\s+"([^"]+)"/);
     if (inletMatch) {
       metadata.inletAssist.set(parseInt(inletMatch[1]), inletMatch[2]);
     }
 
     // @outlet 0 "Description"
-    const outletMatch = trimmed.match(
-      /^\/\/\s*@outlet\s+(\d+)\s+"([^"]+)"/
-    );
+    const outletMatch = trimmed.match(/^\/\/\s*@outlet\s+(\d+)\s+"([^"]+)"/);
     if (outletMatch) {
       metadata.outletAssist.set(parseInt(outletMatch[1]), outletMatch[2]);
     }

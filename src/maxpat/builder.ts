@@ -1,4 +1,4 @@
-import type { MaxPat, Patcher, Box, PatchLine, DeviceType } from "./types.js";
+import type { MaxPat, Patcher, Box, PatchLine } from "./types.js";
 import { nextId, resetIdCounter } from "../utils/ids.js";
 
 const DEFAULT_APP_VERSION = {
@@ -100,8 +100,7 @@ export class PatchBuilder {
     if (embed !== undefined) box.embed = embed;
     if (saved_object_attributes)
       box.saved_object_attributes = saved_object_attributes;
-    if (text_editor_contents)
-      box.text_editor_contents = text_editor_contents;
+    if (text_editor_contents) box.text_editor_contents = text_editor_contents;
     if (comment) box.comment = comment;
     if (patcher) box.patcher = patcher;
 
@@ -111,11 +110,17 @@ export class PatchBuilder {
     return id;
   }
 
-  addObject(text: string, options: Parameters<PatchBuilder["addBox"]>[1] = {}): string {
+  addObject(
+    text: string,
+    options: Parameters<PatchBuilder["addBox"]>[1] = {}
+  ): string {
     return this.addBox("newobj", { text, ...options });
   }
 
-  addComment(text: string, options: Parameters<PatchBuilder["addBox"]>[1] = {}): string {
+  addComment(
+    text: string,
+    options: Parameters<PatchBuilder["addBox"]>[1] = {}
+  ): string {
     return this.addBox("comment", {
       text,
       numinlets: 1,

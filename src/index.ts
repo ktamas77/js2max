@@ -22,11 +22,7 @@ program
     "-t, --type <type>",
     "Device type: midi-effect, audio-effect, instrument"
   )
-  .option(
-    "-w, --device-width <width>",
-    "Device strip width in pixels",
-    "400"
-  )
+  .option("-w, --device-width <width>", "Device strip width in pixels", "400")
   .action(async (input: string, opts: Record<string, string | boolean>) => {
     const inputPath = resolve(input);
     const outputPath = opts.output

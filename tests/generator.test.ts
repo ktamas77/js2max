@@ -17,9 +17,7 @@ describe("compileSource", () => {
     const source = `inlets = 1;\noutlets = 1;\nfunction bang() {}`;
     const patch = await compileSource(source);
 
-    const v8Box = patch.patcher.boxes.find(
-      (b) => b.box.text?.startsWith("v8")
-    );
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
     expect(v8Box).toBeDefined();
     expect(v8Box!.box.embed).toBe(1);
     expect(v8Box!.box.text_editor_contents).toBe(source);
@@ -29,9 +27,7 @@ describe("compileSource", () => {
     const source = `inlets = 1;\noutlets = 1;\nfunction bang() {}`;
     const patch = await compileSource(source, { embed: false });
 
-    const v8Box = patch.patcher.boxes.find(
-      (b) => b.box.text?.startsWith("v8")
-    );
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
     expect(v8Box).toBeDefined();
     expect(v8Box!.box.embed).toBeUndefined();
     expect(v8Box!.box.text).toBe("v8 <inline>");
@@ -48,9 +44,7 @@ describe("compileSource", () => {
     const patch = await compileSource(source);
 
     // Instrument template should have plugout~ (audio output)
-    const plugout = patch.patcher.boxes.find(
-      (b) => b.box.text === "plugout~"
-    );
+    const plugout = patch.patcher.boxes.find((b) => b.box.text === "plugout~");
     expect(plugout).toBeDefined();
   });
 
@@ -58,12 +52,8 @@ describe("compileSource", () => {
     const source = `// @device midi-effect\ninlets = 1;\noutlets = 1;`;
     const patch = await compileSource(source);
 
-    const midiin = patch.patcher.boxes.find(
-      (b) => b.box.text === "midiin"
-    );
-    const midiout = patch.patcher.boxes.find(
-      (b) => b.box.text === "midiout"
-    );
+    const midiin = patch.patcher.boxes.find((b) => b.box.text === "midiin");
+    const midiout = patch.patcher.boxes.find((b) => b.box.text === "midiout");
     expect(midiin).toBeDefined();
     expect(midiout).toBeDefined();
   });
@@ -72,12 +62,8 @@ describe("compileSource", () => {
     const source = `// @device audio-effect\ninlets = 1;\noutlets = 1;`;
     const patch = await compileSource(source);
 
-    const pluginIn = patch.patcher.boxes.find(
-      (b) => b.box.text === "plugin~"
-    );
-    const plugout = patch.patcher.boxes.find(
-      (b) => b.box.text === "plugout~"
-    );
+    const pluginIn = patch.patcher.boxes.find((b) => b.box.text === "plugin~");
+    const plugout = patch.patcher.boxes.find((b) => b.box.text === "plugout~");
     expect(pluginIn).toBeDefined();
     expect(plugout).toBeDefined();
   });
@@ -86,9 +72,7 @@ describe("compileSource", () => {
     const source = `inlets = 3;\noutlets = 4;\nfunction bang() {}`;
     const patch = await compileSource(source);
 
-    const v8Box = patch.patcher.boxes.find(
-      (b) => b.box.text?.startsWith("v8")
-    );
+    const v8Box = patch.patcher.boxes.find((b) => b.box.text?.startsWith("v8"));
     expect(v8Box!.box.numinlets).toBe(3);
     expect(v8Box!.box.numoutlets).toBe(4);
   });

@@ -10,7 +10,7 @@ const program = new Command();
 program
   .name("js2max")
   .description("Compile JavaScript files into Max for Live (.amxd) devices")
-  .version("0.1.0");
+  .version("1.0.0");
 
 program
   .command("compile")

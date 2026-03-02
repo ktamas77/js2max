@@ -1,7 +1,7 @@
 {
   "name": "max4js",
   "version": "0.1.0",
-  "description": "Compile JavaScript files into Max for Live (.maxpat) devices",
+  "description": "Compile JavaScript files into Max for Live (.amxd) devices",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

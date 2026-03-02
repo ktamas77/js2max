@@ -1,6 +1,8 @@
 import { writeFile } from "node:fs/promises";
+import { basename } from "node:path";
 import { parseJsFile, parseSource } from "./parser.js";
 import { generatePatch, type TemplateOptions } from "./templates.js";
+import { buildAmxd } from "../amxd/writer.js";
 import type { MaxPat, DeviceType } from "../maxpat/types.js";
 
 export interface CompileOptions {
@@ -27,8 +29,13 @@ export async function compile(
   const patch = generatePatch(metadata, deviceType, templateOptions);
 
   if (options.output) {
-    const json = JSON.stringify(patch, null, 2);
-    await writeFile(options.output, json, "utf-8");
+    if (options.output.endsWith(".amxd")) {
+      const amxdBytes = buildAmxd(patch, deviceType, basename(options.output));
+      await writeFile(options.output, amxdBytes);
+    } else {
+      const json = JSON.stringify(patch, null, "\t");
+      await writeFile(options.output, json, "utf-8");
+    }
   }
 
   return patch;

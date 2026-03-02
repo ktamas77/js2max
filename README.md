@@ -1,8 +1,8 @@
 # max4js
 
-Write Max for Live devices in JavaScript. Compile to `.maxpat` and drag into Ableton Live.
+Write Max for Live devices in JavaScript. Compile to `.amxd` and drag into Ableton Live.
 
-**max4js** is a Node.js compiler that takes a JavaScript file written for the Max 9 `v8` engine and produces a ready-to-use `.maxpat` patch. No visual patching required.
+**max4js** is a Node.js compiler that takes a JavaScript file written for the Max 9 `v8` engine and produces a ready-to-use `.amxd` device. No visual patching required.
 
 ## Why?
 
@@ -20,10 +20,10 @@ Max 9 introduced the [`v8` object](https://docs.cycling74.com/reference/v8/) —
 ## Quick Start
 
 ```bash
-npx max4js compile my-effect.js -o my-effect.maxpat
+npx max4js compile my-effect.js
 ```
 
-Then drag `my-effect.maxpat` into a Max for Live device slot in Ableton Live.
+This produces `my-effect.amxd` — drag it directly into Ableton Live.
 
 ## Installation
 
@@ -65,24 +65,32 @@ function bang() {
 ### Compile it
 
 ```bash
-# MIDI effect (default)
-max4js compile effect.js -o effect.maxpat
+# MIDI effect (default) → .amxd
+max4js compile effect.js
 
 # Audio effect
-max4js compile delay.js --type audio-effect -o delay.maxpat
+max4js compile delay.js --type audio-effect
 
 # Instrument
-max4js compile synth.js --type instrument -o synth.maxpat
+max4js compile synth.js --type instrument
+
+# Output as .maxpat instead
+max4js compile effect.js -o effect.maxpat
 ```
 
 ### CLI Options
 
 | Option                    | Default             | Description                                              |
 | ------------------------- | ------------------- | -------------------------------------------------------- |
-| `-o, --output <path>`     | `<input>.maxpat`    | Output file path                                         |
+| `-o, --output <path>`     | `<input>.amxd`      | Output file path (`.amxd` or `.maxpat`)                  |
 | `-t, --type <type>`       | `midi-effect`       | Device type: `midi-effect`, `audio-effect`, `instrument` |
-| `--no-embed`              | (embeds by default) | Reference external `.js` file instead of embedding code  |
+| `--no-embed`              | (embeds by default) | Reference external `.js` file instead of embedding       |
 | `-w, --device-width <px>` | `400`               | Max for Live device strip width                          |
+
+## Output Formats
+
+- **`.amxd`** (default) — Binary Max for Live device. Opens directly in Ableton Live 12+.
+- **`.maxpat`** — JSON Max patch. Opens in Max 9. Use `-o file.maxpat` to select this format.
 
 ## Decorator Comments
 
@@ -99,10 +107,9 @@ Use comments at the top of your file to configure compilation:
 
 1. **Parses** your `.js` file to extract `inlets`, `outlets`, handler functions, and decorator comments
 2. **Selects a template** based on device type (MIDI effect, audio effect, or instrument)
-3. **Generates** a `.maxpat` JSON file with the `v8` object wired to the appropriate Max for Live infrastructure (`midiin`/`midiout`, `plugin~`/`plugout~`, `live.thisdevice`)
+3. **Generates** the patch JSON with the `v8` object wired to the appropriate Max for Live infrastructure (`midiin`/`midiout`, `plugin~`/`plugout~`, `live.thisdevice`)
 4. **Embeds** your JavaScript source directly in the patch (single-file distribution)
-
-The output is a standard `.maxpat` file — valid JSON that Max 9 opens natively.
+5. **Wraps** in the `.amxd` binary container (chunk-based: `ampf` + `meta` + `ptch` with `mx@c` header and `dlst` directory)
 
 ## Examples
 
@@ -149,7 +156,6 @@ Full reference: [Max JavaScript User Guide](https://docs.cycling74.com/userguide
 ## Limitations
 
 - **No audio DSP**: JavaScript runs in Max's low-priority thread. Use `v8` for MIDI processing, generative tools, control logic, and Live Object Model access — not for real-time audio processing.
-- **No `.amxd` output** (yet): The compiler produces `.maxpat` files. To create a `.amxd` device, open the `.maxpat` in Max, then save as `.amxd`. The `.amxd` format has a proprietary binary wrapper without a public spec.
 
 ## Development
 

@@ -9,14 +9,14 @@ const program = new Command();
 
 program
   .name("max4js")
-  .description("Compile JavaScript files into Max for Live (.maxpat) devices")
+  .description("Compile JavaScript files into Max for Live (.amxd) devices")
   .version("0.1.0");
 
 program
   .command("compile")
-  .description("Compile a JavaScript file into a .maxpat file")
+  .description("Compile a JavaScript file into a .amxd or .maxpat file")
   .argument("<input>", "Path to the JavaScript file")
-  .option("-o, --output <path>", "Output .maxpat file path")
+  .option("-o, --output <path>", "Output file path (.amxd or .maxpat)")
   .option("--no-embed", "Reference external .js file instead of embedding")
   .option(
     "-t, --type <type>",
@@ -27,7 +27,7 @@ program
     const inputPath = resolve(input);
     const outputPath = opts.output
       ? resolve(opts.output as string)
-      : inputPath.replace(/\.js$/, ".maxpat");
+      : inputPath.replace(/\.js$/, ".amxd");
 
     try {
       await compile(inputPath, {

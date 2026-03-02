@@ -1,0 +1,41 @@
+{
+  "name": "max4js",
+  "version": "0.1.0",
+  "description": "Compile JavaScript files into Max for Live (.maxpat) devices",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "max4js": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "max",
+    "msp",
+    "max-for-live",
+    "ableton",
+    "cycling74",
+    "maxpat",
+    "v8",
+    "compiler"
+  ],
+  "author": "Tamas Kalman",
+  "license": "MIT",
+  "dependencies": {
+    "acorn": "^8.14.0",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -20,10 +20,9 @@ Max 9 introduced the [`v8` object](https://docs.cycling74.com/reference/v8/) —
 ## Quick Start
 
 ```bash
-npx js2max compile my-effect.js
+npx js2max compile effect.js                  # → effect.amxd (drag into Ableton Live)
+npx js2max compile effect.js -o effect.maxpat  # → JSON for Max 9
 ```
-
-This produces `my-effect.amxd` — drag it directly into Ableton Live.
 
 ## Installation
 
@@ -89,8 +88,10 @@ js2max compile effect.js -o effect.maxpat
 
 ## Output Formats
 
-- **`.amxd`** (default) — Binary Max for Live device. Opens directly in Ableton Live 12+.
+- **`.amxd`** (default) — Binary Max for Live device. Opens directly in Ableton Live (any version with Max for Live support).
 - **`.maxpat`** — JSON Max patch. Opens in Max 9. Use `-o file.maxpat` to select this format.
+
+The `.amxd` binary format was reverse-engineered from Ableton's own [maxdevtools](https://github.com/Ableton/maxdevtools) and validated against working devices. It uses a chunk-based container (`ampf` → `meta` → `ptch` with `mx@c` header and `dlst` directory listing).
 
 ## Decorator Comments
 
